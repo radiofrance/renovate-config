@@ -1,0 +1,71 @@
+{
+  "extends": [
+    "config:best-practices",
+    ":enableVulnerabilityAlerts",
+    ":gitSignOff",
+    ":ignoreModulesAndTests",
+    ":prConcurrentLimitNone",
+    ":prHourlyLimitNone",
+    ":label(dependencies)",
+    ":semanticCommitScope(deps)",
+    ":separateMultipleMajorReleases"
+  ],
+  "packageRules": [
+    {
+      "description": "Delay all updates by 14 days to give the upstream registries time to pull malicious dependencies",
+      "matchPackageNames": [
+        "*"
+      ],
+      "minimumReleaseAge": "14 days"
+    },
+    {
+      "description": "Group lint related bumps",
+      "groupName": "lint",
+      "matchPackageNames": [
+        "/lint/"
+      ],
+      "separateMajorMinor": false
+    },
+    {
+      "description": "Group GitHub Actions related bumps",
+      "groupName": "GitHub Actions",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "/action/"
+      ],
+      "separateMajorMinor": false
+    },
+    {
+      "description": "Update Go directives in go.mod files",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepNames": [
+        "go"
+      ],
+      "matchDepTypes": [
+        "golang"
+      ],
+      "rangeStrategy": "bump"
+    }
+  ],
+  "postUpdateOptions": [
+    "gomodUpdateImportPaths",
+    "gomodTidy"
+  ],
+  "customManagers": [
+    {
+      "description": "Update variables in Makefile and GitHub Actions files",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/(^|/)Makefile$/",
+        "/^\\.github/workflows/.*\\.ya?ml/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>.*?) depName=(?<depName>.*?)(?: versioning=(?<versioning>.*?))?\\s+.*\\s*[:=]\\s*['\"]?(?<currentValue>.+?)['\"]?\\s"
+      ]
+    }
+  ]
+}
